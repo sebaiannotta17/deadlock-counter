@@ -25,4 +25,6 @@ export interface GameDataContextValue extends GameDataSnapshot {
   deleteRecommendation(id: string): void
   /** Reemplaza héroes con mismo `id` y mantiene el resto (útil para importaciones masivas `dm-*`). */
   mergeHeroes(imported: Hero[]): void
+  /** Reemplaza ítems con mismo `id` y mantiene el resto (`dm-item-*`). */
+  mergeItems(imported: Item[]): void
 }

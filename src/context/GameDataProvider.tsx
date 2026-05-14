@@ -111,9 +111,19 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
-  /** Roster oficial vía deadlock-metadata cuando todavía no hay ningún dm-* */
+  const mergeItems = useCallback((imported: Item[]) => {
+    if (imported.length === 0) return
+    setItems((prev) => {
+      const replaceIds = new Set(imported.map((it) => it.id))
+      const kept = prev.filter((it) => !replaceIds.has(it.id))
+      return [...kept, ...imported]
+    })
+  }, [])
+
+  /** Roster oficial vía deadlock-metadata cuando todavía no hay ningún dm-{idNumérico} de héroe */
   useEffect(() => {
-    if (heroes.some((h) => h.id.startsWith('dm-'))) return
+    const hasImportedHeroRoster = heroes.some((h) => /^dm-\d+$/.test(h.id))
+    if (hasImportedHeroRoster) return
     if (metadataBootstrapAttemptedRef.current) return
     metadataBootstrapAttemptedRef.current = true
 
@@ -147,6 +157,7 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
       updateRecommendation,
       deleteRecommendation,
       mergeHeroes,
+      mergeItems,
     }),
     [
       heroes,
@@ -164,6 +175,7 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
       updateRecommendation,
       deleteRecommendation,
       mergeHeroes,
+      mergeItems,
     ],
   )
 

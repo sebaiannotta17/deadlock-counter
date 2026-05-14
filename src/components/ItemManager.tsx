@@ -2,6 +2,7 @@ import type { FormEvent } from 'react'
 import { useMemo, useState } from 'react'
 import type { Item, ItemTier, ItemType } from '../types'
 import { useGameData } from '../hooks/useGameData'
+import { buildShopItemsFromAssetsApi } from '../lib/deadlockItemsImport'
 import { FilterBar } from './FilterBar'
 import { SearchInput } from './SearchInput'
 import { typeBadgeClass } from './badges'
@@ -21,12 +22,40 @@ const emptyItem: Omit<Item, 'id'> = {
 }
 
 export function ItemManager() {
-  const { items, addItem, updateItem, deleteItem } = useGameData()
+  const { items, addItem, updateItem, deleteItem, mergeItems } = useGameData()
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState<Omit<Item, 'id'>>(emptyItem)
   const [q, setQ] = useState('')
   const [typeFilter, setTypeFilter] = useState<ItemType | 'all'>('all')
   const [tierFilter, setTierFilter] = useState<ItemTier | 'all'>('all')
+  const [itemsImporting, setItemsImporting] = useState(false)
+  const [itemsImportProgress, setItemsImportProgress] = useState<string | null>(
+    null,
+  )
+  const [itemsImportErr, setItemsImportErr] = useState<string | null>(null)
+
+  async function runAssetsItemsImport() {
+    if (
+      !confirm(
+        'Se descargará el catálogo de ítems desde assets.deadlock-api.com/v2/items en una sola petición (~170 ítems de tienda). Los ids dm-item-* existentes se reemplazan. ¿Continuar?',
+      )
+    )
+      return
+    setItemsImportErr(null)
+    setItemsImportProgress('Descargando catálogo…')
+    setItemsImporting(true)
+    try {
+      const list = await buildShopItemsFromAssetsApi()
+      mergeItems(list)
+      setItemsImportProgress(`Listo: ${list.length} ítems de tienda importados.`)
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      setItemsImportErr(msg)
+      setItemsImportProgress(null)
+    } finally {
+      setItemsImporting(false)
+    }
+  }
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase()
@@ -92,6 +121,41 @@ export function ItemManager() {
 
   return (
     <div className="space-y-8">
+      <section className="rounded-2xl border border-cyan-900/45 bg-cyan-950/15 p-6">
+        <h3 className="font-[family-name:var(--font-display)] text-lg font-semibold text-white">
+          Importar ítems desde Deadlock Assets API
+        </h3>
+        <p className="mt-2 text-sm text-slate-400">
+          Una petición a{' '}
+          <code className="rounded bg-dl-elevated px-1 text-xs text-cyan-200">
+            /v2/items
+          </code>{' '}
+          trae todos los upgrades{' '}
+          <strong className="text-slate-300">shopable</strong> del juego (~172).
+          Se mapean a{' '}
+          <strong className="text-slate-300">Disparo / Vida / Espiritual</strong>{' '}
+          según el slot de tienda (
+          <code className="text-xs">weapon · vitality · spirit</code>) y el tier
+          de tienda (los de tier 5 se muestran como tier 4 en esta app).
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <button
+            type="button"
+            disabled={itemsImporting}
+            onClick={() => void runAssetsItemsImport()}
+            className="rounded-xl bg-cyan-700 px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-white hover:bg-cyan-600 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {itemsImporting ? 'Importando…' : 'Importar ítems de tienda'}
+          </button>
+        </div>
+        {itemsImportProgress ? (
+          <p className="mt-3 text-sm text-emerald-300/95">{itemsImportProgress}</p>
+        ) : null}
+        {itemsImportErr ? (
+          <p className="mt-3 text-sm text-rose-300">{itemsImportErr}</p>
+        ) : null}
+      </section>
+
       <form
         onSubmit={submit}
         className="grid gap-6 rounded-2xl border border-dl-border bg-dl-surface p-6 lg:grid-cols-2"
@@ -312,6 +376,9 @@ export function ItemManager() {
                                 </p>
                                 <p className="text-[11px] text-slate-500">
                                   {it.soulCost} almas
+                                </p>
+                                <p className="truncate font-mono text-[10px] text-slate-600">
+                                  {it.id}
                                 </p>
                               </div>
                             </div>
