@@ -2,6 +2,7 @@ import type { Hero } from '../types'
 import type { CombinedEntry } from '../utils/recommendations'
 import { HeroCard } from './HeroCard'
 import { ItemCard } from './ItemCard'
+import { useI18n } from '../hooks/useI18n'
 
 interface RecommendedItemsProps {
   player: Hero
@@ -14,21 +15,23 @@ export function RecommendedItems({
   enemies,
   entries,
 }: RecommendedItemsProps) {
+  const { t } = useI18n()
+
   return (
     <div className="space-y-8">
       <header className="rounded-2xl border border-dl-border bg-gradient-to-br from-dl-surface to-dl-bg p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-dl-accent">
-          Resumen de partida
+          {t('recommended.summary')}
         </p>
         <div className="mt-4 grid gap-6 md:grid-cols-3">
           <div>
-            <p className="text-xs uppercase text-slate-500">Tu personaje</p>
+            <p className="text-xs uppercase text-slate-500">{t('recommended.yourHero')}</p>
             <div className="mt-2">
               <HeroCard hero={player} />
             </div>
           </div>
           <div className="md:col-span-2">
-            <p className="text-xs uppercase text-slate-500">Línea contraria</p>
+            <p className="text-xs uppercase text-slate-500">{t('recommended.enemyLane')}</p>
             <div className="mt-2 grid gap-3 sm:grid-cols-2">
               <HeroCard hero={enemies[0]} compact />
               <HeroCard hero={enemies[1]} compact />
@@ -39,17 +42,13 @@ export function RecommendedItems({
 
       <section>
         <h2 className="font-[family-name:var(--font-display)] text-xl font-semibold text-white md:text-2xl">
-          Ítems sugeridos
+          {t('recommended.title')}
         </h2>
-        <p className="mt-1 text-sm text-slate-400">
-          Ordenados por utilidad combinada en la línea. Los que aparecen como
-          &quot;Muy recomendado&quot; son fuertes contra ambos rivales.
-        </p>
+        <p className="mt-1 text-sm text-slate-400">{t('recommended.subtitle')}</p>
         <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {entries.length === 0 ? (
             <p className="col-span-full rounded-2xl border border-amber-500/30 bg-amber-950/20 p-6 text-amber-100">
-              No hay recomendaciones cargadas para esta pareja de enemigos.
-              Abrí el panel de administrador y asigná ítems a esos personajes.
+              {t('recommended.noRecs')}
             </p>
           ) : (
             entries.map((e) => (
@@ -60,12 +59,14 @@ export function RecommendedItems({
                 priority={e.bestPriority}
                 timing={e.earliestTiming}
                 highlight={e.veryRecommended}
-                explanationBlocks={e.sources.map((s) => ({
-                  title: `vs ${s.enemy.name}`,
-                  text: s.explanation,
-                  priority: s.priority,
-                  timing: s.timing,
-                }))}
+                explanationBlocks={e.sources
+                  .filter((s) => (s.explanation ?? '').trim())
+                  .map((s) => ({
+                    title: `vs ${s.enemy.name}`,
+                    text: s.explanation ?? '',
+                    priority: s.priority,
+                    timing: s.timing,
+                  }))}
               />
             ))
           )}

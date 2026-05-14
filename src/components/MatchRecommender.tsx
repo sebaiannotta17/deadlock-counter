@@ -5,10 +5,12 @@ import { combineLaneRecommendations } from '../utils/recommendations'
 import { EnemySelector } from './EnemySelector'
 import { HeroSelector } from './HeroSelector'
 import { RecommendedItems } from './RecommendedItems'
+import { useI18n } from '../hooks/useI18n'
 
 type Step = 'hero' | 'enemies' | 'result'
 
 export function MatchRecommender({ onBack }: { onBack: () => void }) {
+  const { t } = useI18n()
   const { heroes, items, recommendations } = useGameData()
   const itemsById = useMemo(
     () => new Map(items.map((i) => [i.id, i])),
@@ -43,19 +45,19 @@ export function MatchRecommender({ onBack }: { onBack: () => void }) {
           onClick={onBack}
           className="rounded-xl border border-dl-border bg-dl-surface px-4 py-3 text-sm font-medium text-slate-200 hover:border-slate-500"
         >
-          ← Menú
+          {t('nav.backMenu')}
         </button>
         <div className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
           <span className={step === 'hero' ? 'text-dl-accent' : ''}>
-            1 · Tu héroe
+            {t('match.steps.hero')}
           </span>
           <span aria-hidden>/</span>
           <span className={step === 'enemies' ? 'text-dl-accent' : ''}>
-            2 · Rivales
+            {t('match.steps.enemies')}
           </span>
           <span aria-hidden>/</span>
           <span className={step === 'result' ? 'text-dl-accent' : ''}>
-            3 · Ítems
+            {t('match.steps.items')}
           </span>
         </div>
       </div>
@@ -63,7 +65,7 @@ export function MatchRecommender({ onBack }: { onBack: () => void }) {
       {step === 'hero' ? (
         <div className="space-y-6">
           <HeroSelector
-            title="¿Qué personaje estás usando?"
+            title={t('match.heroTitle')}
             heroes={heroes}
             selectedId={player?.id ?? null}
             onSelect={(h) => setPlayer(h)}
@@ -75,7 +77,7 @@ export function MatchRecommender({ onBack }: { onBack: () => void }) {
               onClick={() => setStep('enemies')}
               className="rounded-2xl bg-dl-accent px-8 py-4 text-base font-bold uppercase tracking-wide text-slate-950 shadow-lg shadow-orange-500/25 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Continuar
+              {t('match.continue')}
             </button>
           </div>
         </div>
@@ -84,7 +86,7 @@ export function MatchRecommender({ onBack }: { onBack: () => void }) {
       {step === 'enemies' ? (
         <div className="space-y-6">
           <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold text-white md:text-3xl">
-            ¿Contra qué 2 personajes estás laneando?
+            {t('match.enemiesTitle')}
           </h1>
           <EnemySelector
             heroes={heroes}
@@ -99,7 +101,7 @@ export function MatchRecommender({ onBack }: { onBack: () => void }) {
               onClick={() => setStep('hero')}
               className="rounded-xl border border-dl-border px-5 py-3 text-sm text-slate-300 hover:bg-dl-surface"
             >
-              Volver
+              {t('match.back')}
             </button>
             <button
               type="button"
@@ -107,7 +109,7 @@ export function MatchRecommender({ onBack }: { onBack: () => void }) {
               onClick={() => setStep('result')}
               className="rounded-2xl bg-dl-accent px-8 py-4 text-base font-bold uppercase tracking-wide text-slate-950 shadow-lg shadow-orange-500/25 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Ver recomendaciones
+              {t('match.viewRecs')}
             </button>
           </div>
         </div>
@@ -121,7 +123,7 @@ export function MatchRecommender({ onBack }: { onBack: () => void }) {
               onClick={() => setStep('enemies')}
               className="rounded-xl border border-dl-border px-4 py-2 text-sm text-slate-300 hover:bg-dl-surface"
             >
-              Cambiar rivales
+              {t('match.changeEnemies')}
             </button>
             <button
               type="button"
@@ -133,7 +135,7 @@ export function MatchRecommender({ onBack }: { onBack: () => void }) {
               }}
               className="rounded-xl border border-dl-border px-4 py-2 text-sm text-slate-300 hover:bg-dl-surface"
             >
-              Nueva consulta
+              {t('match.newQuery')}
             </button>
           </div>
           <RecommendedItems

@@ -1,4 +1,6 @@
 import { useProfile } from '../hooks/useProfile'
+import { useI18n } from '../hooks/useI18n'
+import { LanguageToggle } from './LanguageToggle'
 
 interface ProfileToolbarProps {
   variant?: 'menu' | 'bar'
@@ -10,10 +12,11 @@ export function ProfileToolbar({
   className = '',
 }: ProfileToolbarProps) {
   const { profile, profileId, setProfileId, profiles } = useProfile()
+  const { t } = useI18n()
 
   const shell =
     variant === 'menu'
-      ? `mx-auto w-full max-w-lg rounded-2xl border border-dl-border bg-dl-surface/90 p-4 text-left backdrop-blur-sm ${className}`
+      ? `flex flex-wrap items-start justify-between gap-3 mx-auto w-full max-w-lg rounded-2xl border border-dl-border bg-dl-surface/90 p-4 text-left backdrop-blur-sm ${className}`
       : `flex flex-wrap items-center gap-3 rounded-xl border border-dl-border bg-dl-surface/90 px-3 py-2 backdrop-blur-sm ${className}`
 
   return (
@@ -23,7 +26,7 @@ export function ProfileToolbar({
           htmlFor="profile-select"
           className="block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500"
         >
-          Perfil (admin)
+          {t('profile.adminLabel')}
         </label>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <select
@@ -43,9 +46,11 @@ export function ProfileToolbar({
           </span>
         </div>
         <p className="mt-2 text-xs text-slate-500">
-          Sesión: <span className="text-slate-300">{profile.displayName}</span>
+          {t('profile.session')}{' '}
+          <span className="text-slate-300">{profile.displayName}</span>
         </p>
       </div>
+      <LanguageToggle />
     </div>
   )
 }

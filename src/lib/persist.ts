@@ -1,4 +1,4 @@
-import type { GameDataSnapshot } from '../types'
+import type { CounterRecommendation, GameDataSnapshot } from '../types'
 import {
   seedHeroes,
   seedItems,
@@ -20,9 +20,36 @@ export function loadSnapshot(): GameDataSnapshot {
     ) {
       return getSeedSnapshot()
     }
-    return parsed
+    return normalizeSnapshot(parsed)
   } catch {
     return getSeedSnapshot()
+  }
+}
+
+function normalizeRecommendations(raw: unknown[]): CounterRecommendation[] {
+  if (!Array.isArray(raw)) return []
+  return raw.map((row) => {
+    const r = row as CounterRecommendation & { notes?: string }
+    const explanation =
+      typeof r.explanation === 'string' && r.explanation.trim()
+        ? r.explanation.trim()
+        : undefined
+    return {
+      id: r.id,
+      enemyHeroId: r.enemyHeroId,
+      itemId: r.itemId,
+      priority: r.priority,
+      timing: r.timing,
+      explanation,
+    }
+  })
+}
+
+function normalizeSnapshot(parsed: GameDataSnapshot): GameDataSnapshot {
+  return {
+    heroes: parsed.heroes,
+    items: parsed.items,
+    recommendations: normalizeRecommendations(parsed.recommendations),
   }
 }
 

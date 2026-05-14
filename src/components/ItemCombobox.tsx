@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import type { Item } from '../types'
+import { useI18n } from '../hooks/useI18n'
 
 interface ItemComboboxProps {
   items: Item[]
@@ -22,6 +23,7 @@ function ItemComboboxField({
   disabled,
   seedLabel,
 }: ItemComboboxFieldProps) {
+  const { t } = useI18n()
   const [query, setQuery] = useState(seedLabel)
   const [open, setOpen] = useState(false)
   const [highlight, setHighlight] = useState(0)
@@ -55,7 +57,7 @@ function ItemComboboxField({
       }}
     >
       <label className="block text-sm font-medium text-slate-300">
-        Ítem (buscar y elegir)
+        {t('counter.itemCombo')}
         <input
           type="text"
           disabled={disabled || items.length === 0}
@@ -91,8 +93,8 @@ function ItemComboboxField({
           }}
           placeholder={
             items.length === 0
-              ? 'No hay ítems cargados'
-              : 'Escribí nombre del ítem…'
+              ? t('counter.noItemsLoaded')
+              : t('counter.itemPlaceholder')
           }
           className="mt-1 w-full rounded-xl border border-dl-border bg-dl-elevated px-3 py-3 text-slate-100 outline-none ring-purple-500/30 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
         />
@@ -110,17 +112,24 @@ function ItemComboboxField({
                 type="button"
                 role="option"
                 aria-selected={idx === safeHighlight}
-                className={`flex w-full flex-col gap-0.5 px-3 py-2 text-left text-sm transition hover:bg-dl-elevated ${
+                className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition hover:bg-dl-elevated ${
                   idx === safeHighlight ? 'bg-dl-elevated/90' : ''
                 }`}
                 onMouseEnter={() => setHighlight(idx)}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => choose(it)}
               >
-                <span className="font-medium text-white">{it.name}</span>
-                <span className="text-[11px] text-slate-500">
-                  {it.soulCost.toLocaleString()} almas
-                </span>
+                <img
+                  src={it.image}
+                  alt=""
+                  className="h-9 w-9 shrink-0 rounded-lg border border-dl-border object-cover"
+                />
+                <div className="flex min-w-0 flex-col gap-0.5">
+                  <span className="truncate font-medium text-white">{it.name}</span>
+                  <span className="text-[11px] text-slate-500">
+                    {it.soulCost.toLocaleString()} {t('common.almasWord')}
+                  </span>
+                </div>
               </button>
             </li>
           ))}
@@ -129,7 +138,7 @@ function ItemComboboxField({
 
       {open && query.trim() && filtered.length === 0 ? (
         <p className="absolute left-0 right-0 top-full z-30 mt-1 rounded-xl border border-dl-border bg-dl-surface px-3 py-2 text-sm text-slate-500 shadow-xl">
-          Sin coincidencias.
+          {t('counter.noMatches')}
         </p>
       ) : null}
     </div>

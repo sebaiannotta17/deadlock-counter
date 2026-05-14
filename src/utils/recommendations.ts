@@ -29,10 +29,9 @@ export interface CombinedEntry {
   earliestTiming: PurchaseTiming
   sources: Array<{
     enemy: Hero
-    explanation: string
+    explanation?: string
     priority: CounterPriority
     timing: PurchaseTiming
-    notes?: string
   }>
 }
 
@@ -92,7 +91,6 @@ export function combineLaneRecommendations(
       explanation: r.explanation,
       priority: r.priority,
       timing: r.timing,
-      notes: r.notes,
     }))
 
     entries.push({

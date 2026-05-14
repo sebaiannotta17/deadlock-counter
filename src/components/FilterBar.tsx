@@ -1,4 +1,5 @@
 import type { ItemTier, ItemType } from '../types'
+import { useI18n } from '../hooks/useI18n'
 
 const types: ItemType[] = ['Disparo', 'Vida', 'Espiritual']
 const tiers: ItemTier[] = [1, 2, 3, 4]
@@ -16,11 +17,13 @@ export function FilterBar({
   tierFilter,
   onTierChange,
 }: FilterBarProps) {
+  const { t } = useI18n()
+
   return (
     <div className="flex flex-wrap gap-3">
       <div className="flex flex-wrap gap-2">
         <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-          Tipo
+          {t('filter.type')}
         </span>
         <div className="flex flex-wrap gap-2">
           <button
@@ -32,27 +35,27 @@ export function FilterBar({
                 : 'border-dl-border bg-dl-surface text-slate-400 hover:border-slate-500'
             }`}
           >
-            Todos
+            {t('filter.all')}
           </button>
-          {types.map((t) => (
+          {types.map((ty) => (
             <button
-              key={t}
+              key={ty}
               type="button"
-              onClick={() => onTypeChange(t)}
+              onClick={() => onTypeChange(ty)}
               className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
-                typeFilter === t
+                typeFilter === ty
                   ? 'border-dl-accent bg-dl-accent/20 text-orange-200'
                   : 'border-dl-border bg-dl-surface text-slate-400 hover:border-slate-500'
               }`}
             >
-              {t}
+              {ty}
             </button>
           ))}
         </div>
       </div>
       <div className="flex flex-wrap gap-2">
         <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-          Tier
+          {t('filter.tier')}
         </span>
         <div className="flex flex-wrap gap-2">
           <button
@@ -64,7 +67,7 @@ export function FilterBar({
                 : 'border-dl-border bg-dl-surface text-slate-400 hover:border-slate-500'
             }`}
           >
-            Todos
+            {t('filter.all')}
           </button>
           {tiers.map((n) => (
             <button

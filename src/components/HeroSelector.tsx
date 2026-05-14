@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import type { Hero } from '../types'
 import { HeroCard } from './HeroCard'
 import { SearchInput } from './SearchInput'
+import { useI18n } from '../hooks/useI18n'
 
 interface HeroSelectorProps {
   title: string
@@ -18,6 +19,7 @@ export function HeroSelector({
   onSelect,
   excludeIds,
 }: HeroSelectorProps) {
+  const { t } = useI18n()
   const [q, setQ] = useState('')
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase()
@@ -36,7 +38,7 @@ export function HeroSelector({
       <h2 className="font-[family-name:var(--font-display)] text-xl font-semibold text-white md:text-2xl">
         {title}
       </h2>
-      <SearchInput value={q} onChange={setQ} placeholder="Buscar por nombre o rol…" />
+      <SearchInput value={q} onChange={setQ} placeholder={t('hero.searchPlaceholder')} />
       <div className="grid max-h-[min(480px,55vh)] gap-3 overflow-y-auto pr-1 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((h) => (
           <HeroCard
@@ -50,7 +52,7 @@ export function HeroSelector({
       </div>
       {filtered.length === 0 ? (
         <p className="text-center text-sm text-slate-500">
-          No hay personajes que coincidan.
+          {t('hero.noMatches')}
         </p>
       ) : null}
     </section>

@@ -1,5 +1,6 @@
 import type { Hero } from '../types'
 import { HeroSelector } from './HeroSelector'
+import { useI18n } from '../hooks/useI18n'
 
 interface EnemySelectorProps {
   heroes: Hero[]
@@ -16,6 +17,7 @@ export function EnemySelector({
   enemyTwo,
   onSelectSlot,
 }: EnemySelectorProps) {
+  const { t } = useI18n()
   const exclude1 = new Set(
     [playerHeroId, enemyTwo?.id].filter(Boolean) as string[],
   )
@@ -27,7 +29,7 @@ export function EnemySelector({
     <div className="grid gap-8 lg:grid-cols-2">
       <div>
         <HeroSelector
-          title="Enemigo de línea 1"
+          title={t('enemy.slot1')}
           heroes={heroes}
           selectedId={enemyOne?.id ?? null}
           onSelect={(h) => {
@@ -42,13 +44,13 @@ export function EnemySelector({
             onClick={() => onSelectSlot(0, null)}
             className="mt-3 w-full rounded-xl border border-dl-border py-2 text-sm text-slate-400 hover:bg-dl-elevated"
           >
-            Quitar enemigo 1
+            {t('enemy.clear1')}
           </button>
         ) : null}
       </div>
       <div>
         <HeroSelector
-          title="Enemigo de línea 2"
+          title={t('enemy.slot2')}
           heroes={heroes}
           selectedId={enemyTwo?.id ?? null}
           onSelect={(h) => {
@@ -63,7 +65,7 @@ export function EnemySelector({
             onClick={() => onSelectSlot(1, null)}
             className="mt-3 w-full rounded-xl border border-dl-border py-2 text-sm text-slate-400 hover:bg-dl-elevated"
           >
-            Quitar enemigo 2
+            {t('enemy.clear2')}
           </button>
         ) : null}
       </div>

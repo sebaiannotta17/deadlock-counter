@@ -6,6 +6,7 @@ import { buildShopItemsFromAssetsApi } from '../lib/deadlockItemsImport'
 import { FilterBar } from './FilterBar'
 import { SearchInput } from './SearchInput'
 import { typeBadgeClass } from './badges'
+import { useI18n } from '../hooks/useI18n'
 
 const types: ItemType[] = ['Disparo', 'Vida', 'Espiritual']
 const tiers: ItemTier[] = [1, 2, 3, 4]
@@ -22,6 +23,7 @@ const emptyItem: Omit<Item, 'id'> = {
 }
 
 export function ItemManager() {
+  const { t } = useI18n()
   const { items, addItem, updateItem, deleteItem, mergeItems } = useGameData()
   const [editingId, setEditingId] = useState<string | null>(null)
   const [formModalOpen, setFormModalOpen] = useState(false)
@@ -240,7 +242,7 @@ export function ItemManager() {
             />
           </label>
           <label className="block text-sm font-medium text-slate-300">
-            Costo en almas
+            {t('item.costSouls')}
             <input
               type="number"
               min={0}
@@ -267,9 +269,9 @@ export function ItemManager() {
                 }
                 className="mt-1 w-full rounded-xl border border-dl-border bg-dl-elevated px-3 py-2 text-slate-100 outline-none ring-dl-accent/30 focus:ring-2"
               >
-                {types.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
+                {types.map((ty) => (
+                  <option key={ty} value={ty}>
+                    {ty}
                   </option>
                 ))}
               </select>
@@ -364,7 +366,7 @@ export function ItemManager() {
                   Tier {form.tier}
                 </span>
                 <span className="rounded-lg border border-slate-600 px-2 py-0.5 text-xs text-slate-200">
-                  {form.soulCost} almas
+                  {form.soulCost} {t('common.almasWord')}
                 </span>
               </div>
             </div>
@@ -399,14 +401,14 @@ export function ItemManager() {
         </div>
 
         <div className="mt-8 space-y-10">
-          {types.map((t) => (
-            <div key={t}>
+          {types.map((itemType) => (
+            <div key={itemType}>
               <h4 className="font-[family-name:var(--font-display)] text-sm font-semibold uppercase tracking-[0.2em] text-dl-muted">
-                {t}
+                {itemType}
               </h4>
               <div className="mt-4 grid gap-6 lg:grid-cols-4">
                 {tiers.map((tier) => {
-                  const list = grouped.get(`${t}-${tier}`) ?? []
+                  const list = grouped.get(`${itemType}-${tier}`) ?? []
                   return (
                     <div key={tier} className="rounded-xl border border-dl-border bg-dl-elevated/40 p-3">
                       <p className="text-center text-xs font-bold text-slate-400">
@@ -419,12 +421,18 @@ export function ItemManager() {
                             className="rounded-lg border border-dl-border bg-dl-surface px-2 py-1.5"
                           >
                             <div className="flex items-center justify-between gap-2">
+                              <img
+                                src={it.image}
+                                alt=""
+                                className="h-9 w-9 shrink-0 rounded-md border border-dl-border object-cover"
+                              />
                               <div className="min-w-0 flex-1">
                                 <p className="truncate text-xs font-semibold text-white">
                                   {it.name}
                                 </p>
                                 <p className="text-[11px] text-slate-500">
-                                  {it.soulCost.toLocaleString()} almas
+                                  {it.soulCost.toLocaleString()}{' '}
+                                  {t('common.almasWord')}
                                 </p>
                               </div>
                               <div className="flex shrink-0 gap-1">

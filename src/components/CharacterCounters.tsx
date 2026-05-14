@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react'
 import { ProfileToolbar } from './ProfileToolbar'
 import { useGameData } from '../hooks/useGameData'
+import { useI18n } from '../hooks/useI18n'
 import { recommendationsForEnemy } from '../utils/recommendations'
 import { HeroSelector } from './HeroSelector'
 import { ItemCard } from './ItemCard'
 
 export function CharacterCounters({ onBack }: { onBack: () => void }) {
+  const { t } = useI18n()
   const { heroes, items, recommendations } = useGameData()
   const itemsById = useMemo(
     () => new Map(items.map((i) => [i.id, i])),
@@ -27,11 +29,11 @@ export function CharacterCounters({ onBack }: { onBack: () => void }) {
         onClick={onBack}
         className="mb-6 rounded-xl border border-dl-border bg-dl-surface px-4 py-3 text-sm font-medium text-slate-200 hover:border-slate-500"
       >
-        ← Menú
+        {t('nav.backMenu')}
       </button>
 
       <HeroSelector
-        title="¿Cómo counterear a…?"
+        title={t('char.toolbarTitle')}
         heroes={heroes}
         selectedId={enemy?.id ?? null}
         onSelect={setEnemy}
@@ -64,12 +66,11 @@ export function CharacterCounters({ onBack }: { onBack: () => void }) {
           </div>
 
           <h3 className="font-[family-name:var(--font-display)] text-lg font-semibold text-white">
-            Ítems recomendados
+            {t('char.recommendedTitle')}
           </h3>
           {list.length === 0 ? (
             <p className="rounded-2xl border border-slate-600/50 bg-dl-elevated p-6 text-slate-400">
-              Todavía no hay counters cargados para {enemy.name}. Usá el panel
-              de administrador para vincular ítems.
+              {t('char.noCounters', { name: enemy.name })}
             </p>
           ) : (
             <div className="space-y-2">
@@ -80,14 +81,18 @@ export function CharacterCounters({ onBack }: { onBack: () => void }) {
                   item={row.item}
                   priority={row.priority}
                   timing={row.timing}
-                  explanationBlocks={[
-                    {
-                      title: 'Por qué sirve',
-                      text: row.explanation,
-                      priority: row.priority,
-                      timing: row.timing,
-                    },
-                  ]}
+                  explanationBlocks={
+                    row.explanation?.trim()
+                      ? [
+                          {
+                            title: t('char.whyHelps'),
+                            text: row.explanation ?? '',
+                            priority: row.priority,
+                            timing: row.timing,
+                          },
+                        ]
+                      : undefined
+                  }
                 />
               ))}
             </div>

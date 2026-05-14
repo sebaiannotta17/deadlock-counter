@@ -33,8 +33,8 @@ export interface CounterRecommendation {
   itemId: string
   priority: CounterPriority
   timing: PurchaseTiming
-  explanation: string
-  notes?: string
+  /** Opcional (podés guardar solo prioridad/timing). */
+  explanation?: string
 }
 
 /** Shape ready to swap for API / DB layer */

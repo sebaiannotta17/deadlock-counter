@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ProfileProvider } from './context/ProfileProvider'
+import { LocaleProvider } from './context/LocaleProvider'
 import { GameDataProvider } from './context/GameDataProvider'
 import { AdminPanel } from './components/AdminPanel'
 import { CharacterCounters } from './components/CharacterCounters'
@@ -13,6 +14,7 @@ export default function App() {
 
   return (
     <ProfileProvider>
+      <LocaleProvider>
       <GameDataProvider>
         <div className="min-h-svh">
         {view === 'menu' ? (
@@ -31,6 +33,7 @@ export default function App() {
         ) : null}
         </div>
       </GameDataProvider>
+      </LocaleProvider>
     </ProfileProvider>
   )
 }
