@@ -45,9 +45,9 @@ export function RecommendedItems({
           Ordenados por utilidad combinada en la línea. Los que aparecen como
           &quot;Muy recomendado&quot; son fuertes contra ambos rivales.
         </p>
-        <div className="mt-6 space-y-5">
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {entries.length === 0 ? (
-            <p className="rounded-2xl border border-amber-500/30 bg-amber-950/20 p-6 text-amber-100">
+            <p className="col-span-full rounded-2xl border border-amber-500/30 bg-amber-950/20 p-6 text-amber-100">
               No hay recomendaciones cargadas para esta pareja de enemigos.
               Abrí el panel de administrador y asigná ítems a esos personajes.
             </p>
@@ -55,6 +55,7 @@ export function RecommendedItems({
             entries.map((e) => (
               <ItemCard
                 key={e.item.id}
+                variant="compact"
                 item={e.item}
                 priority={e.bestPriority}
                 timing={e.earliestTiming}

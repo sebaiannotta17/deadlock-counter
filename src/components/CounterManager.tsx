@@ -1,9 +1,8 @@
 import type { FormEvent } from 'react'
 import { useMemo, useState } from 'react'
-import type { CounterPriority, ItemTier, ItemType, PurchaseTiming } from '../types'
+import type { CounterPriority, PurchaseTiming } from '../types'
 import { useGameData } from '../hooks/useGameData'
-import { FilterBar } from './FilterBar'
-import { SearchInput } from './SearchInput'
+import { ItemCombobox } from './ItemCombobox'
 import { priorityBadgeClass, timingLabel, typeBadgeClass } from './badges'
 
 export function CounterManager() {
@@ -17,35 +16,16 @@ export function CounterManager() {
   } = useGameData()
 
   const [enemyId, setEnemyId] = useState<string>(() => heroes[0]?.id ?? '')
-  const [itemQ, setItemQ] = useState('')
-  const [typeFilter, setTypeFilter] = useState<ItemType | 'all'>('all')
-  const [tierFilter, setTierFilter] = useState<ItemTier | 'all'>('all')
-
   const [pickItemId, setPickItemId] = useState<string>(() => items[0]?.id ?? '')
   const [priority, setPriority] = useState<CounterPriority>('media')
   const [timing, setTiming] = useState<PurchaseTiming>('early')
   const [explanation, setExplanation] = useState('')
   const [notes, setNotes] = useState('')
 
-  const filteredItems = useMemo(() => {
-    const s = itemQ.trim().toLowerCase()
-    return items.filter((it) => {
-      if (typeFilter !== 'all' && it.type !== typeFilter) return false
-      if (tierFilter !== 'all' && it.tier !== tierFilter) return false
-      if (!s) return true
-      return it.name.toLowerCase().includes(s)
-    })
-  }, [items, itemQ, typeFilter, tierFilter])
-
   const resolvedEnemyId = useMemo(() => {
     if (heroes.some((h) => h.id === enemyId)) return enemyId
     return heroes[0]?.id ?? ''
   }, [heroes, enemyId])
-
-  const resolvedPickItemId = useMemo(() => {
-    if (filteredItems.some((it) => it.id === pickItemId)) return pickItemId
-    return filteredItems[0]?.id ?? pickItemId
-  }, [filteredItems, pickItemId])
 
   const enemyRecs = useMemo(
     () => recommendations.filter((r) => r.enemyHeroId === resolvedEnemyId),
@@ -54,13 +34,21 @@ export function CounterManager() {
 
   const itemsById = useMemo(() => new Map(items.map((i) => [i.id, i])), [items])
 
+  const resolvedPickItemId = useMemo(() => {
+    if (items.length === 0) return ''
+    if (pickItemId && items.some((i) => i.id === pickItemId)) return pickItemId
+    return items[0].id
+  }, [items, pickItemId])
+
+  const pickValid = Boolean(resolvedPickItemId)
+
   function submitLink(e: FormEvent) {
     e.preventDefault()
     if (
       !resolvedEnemyId ||
+      !pickValid ||
       !resolvedPickItemId ||
-      !explanation.trim() ||
-      filteredItems.length === 0
+      !explanation.trim()
     )
       return
     const dup = enemyRecs.find((r) => r.itemId === resolvedPickItemId)
@@ -116,36 +104,14 @@ export function CounterManager() {
             Asociar ítem como counter a {enemyName}
           </h3>
           <p className="text-sm text-slate-500">
-            Elegí un ítem de la lista filtrada y completá prioridad, momento y
-            explicación. Si ya existe la pareja enemigo + ítem, se actualiza.
+            Escribí para filtrar y elegí un ítem de la lista. Si ya existe la
+            pareja enemigo + ítem, se actualiza la nota con Guardar vínculo.
           </p>
-          <SearchInput value={itemQ} onChange={setItemQ} placeholder="Buscar ítem…" />
-          <FilterBar
-            typeFilter={typeFilter}
-            onTypeChange={setTypeFilter}
-            tierFilter={tierFilter}
-            onTierChange={setTierFilter}
+          <ItemCombobox
+            items={items}
+            selectedId={resolvedPickItemId}
+            onSelectId={setPickItemId}
           />
-          <label className="block text-sm font-medium text-slate-300">
-            Ítem
-            {filteredItems.length === 0 ? (
-              <p className="mt-2 rounded-xl border border-rose-900/40 bg-rose-950/25 p-3 text-sm text-rose-200">
-                No hay ítems que coincidan con la búsqueda y filtros.
-              </p>
-            ) : (
-              <select
-                value={resolvedPickItemId}
-                onChange={(e) => setPickItemId(e.target.value)}
-                className="mt-1 max-h-48 w-full rounded-xl border border-dl-border bg-dl-elevated px-3 py-2 text-slate-100 outline-none ring-dl-accent/30 focus:ring-2"
-              >
-                {filteredItems.map((it) => (
-                  <option key={it.id} value={it.id}>
-                    [{it.type} T{it.tier}] {it.name} — {it.soulCost} almas
-                  </option>
-                ))}
-              </select>
-            )}
-          </label>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block text-sm font-medium text-slate-300">
               Prioridad
@@ -197,7 +163,7 @@ export function CounterManager() {
           </label>
           <button
             type="submit"
-            disabled={filteredItems.length === 0}
+            disabled={items.length === 0 || !pickValid}
             className="w-full rounded-xl bg-purple-600 px-5 py-3 text-sm font-bold uppercase tracking-wide text-white hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
           >
             Guardar vínculo
@@ -208,63 +174,77 @@ export function CounterManager() {
           <h3 className="font-[family-name:var(--font-display)] text-lg font-semibold text-white">
             Counters actuales vs {enemyName}
           </h3>
-          <ul className="mt-4 max-h-[520px] space-y-3 overflow-y-auto pr-1">
+          <ul className="mt-4 max-h-[520px] space-y-2 overflow-y-auto pr-1">
             {enemyRecs.map((r) => {
               const it = itemsById.get(r.itemId)
               if (!it) return null
               return (
                 <li
                   key={r.id}
-                  className="rounded-xl border border-dl-border bg-dl-elevated/60 p-4"
+                  className="rounded-lg border border-dl-border bg-dl-elevated/60 px-3 py-2"
                 >
-                  <div className="flex flex-wrap gap-2">
-                    <span className="font-semibold text-white">{it.name}</span>
-                    <span
-                      className={`rounded-md border px-2 py-0.5 text-[11px] font-semibold ${typeBadgeClass(it.type)}`}
-                    >
-                      {it.type}
-                    </span>
-                    <span className="rounded-md border border-slate-600 px-2 py-0.5 text-[11px] text-slate-300">
-                      T{it.tier}
-                    </span>
-                    <span
-                      className={`rounded-md border px-2 py-0.5 text-[11px] font-semibold capitalize ${priorityBadgeClass(r.priority)}`}
-                    >
-                      {r.priority}
-                    </span>
-                    <span className="rounded-md border border-sky-800/60 px-2 py-0.5 text-[11px] text-sky-200">
-                      {timingLabel(r.timing)} game
-                    </span>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <span className="text-sm font-medium text-white">
+                        {it.name}
+                      </span>
+                      <span className="ml-2 text-xs text-slate-500">
+                        {it.soulCost.toLocaleString()} almas
+                      </span>
+                    </div>
+                    <div className="flex shrink-0 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPickItemId(it.id)
+                          setPriority(r.priority)
+                          setTiming(r.timing)
+                          setExplanation(r.explanation)
+                          setNotes(r.notes ?? '')
+                        }}
+                        className="rounded-lg border border-slate-600 px-2 py-1 text-[11px] text-slate-200 hover:bg-dl-surface"
+                      >
+                        Cargar en formulario
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (confirm('¿Eliminar esta recomendación?'))
+                            deleteRecommendation(r.id)
+                        }}
+                        className="rounded-lg border border-rose-900/60 px-2 py-1 text-[11px] text-rose-300 hover:bg-rose-950/40"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
                   </div>
-                  <p className="mt-2 text-sm text-slate-300">{r.explanation}</p>
-                  {r.notes ? (
-                    <p className="mt-2 text-xs text-slate-500">{r.notes}</p>
-                  ) : null}
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPickItemId(it.id)
-                        setPriority(r.priority)
-                        setTiming(r.timing)
-                        setExplanation(r.explanation)
-                        setNotes(r.notes ?? '')
-                      }}
-                      className="rounded-lg border border-slate-600 px-3 py-1 text-xs text-slate-200 hover:bg-dl-surface"
-                    >
-                      Cargar en formulario
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (confirm('¿Eliminar esta recomendación?'))
-                          deleteRecommendation(r.id)
-                      }}
-                      className="rounded-lg border border-rose-900/60 px-3 py-1 text-xs text-rose-300 hover:bg-rose-950/40"
-                    >
-                      Eliminar
-                    </button>
-                  </div>
+                  <details className="mt-2 border-t border-dl-border pt-2">
+                    <summary className="cursor-pointer text-[11px] text-dl-accent">
+                      Prioridad, timing y texto
+                    </summary>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      <span
+                        className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold ${typeBadgeClass(it.type)}`}
+                      >
+                        {it.type}
+                      </span>
+                      <span className="rounded-md border border-slate-600 px-2 py-0.5 text-[10px] text-slate-300">
+                        T{it.tier}
+                      </span>
+                      <span
+                        className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold capitalize ${priorityBadgeClass(r.priority)}`}
+                      >
+                        {r.priority}
+                      </span>
+                      <span className="rounded-md border border-sky-800/60 px-2 py-0.5 text-[10px] text-sky-200">
+                        {timingLabel(r.timing)} game
+                      </span>
+                    </div>
+                    <p className="mt-2 text-xs text-slate-300">{r.explanation}</p>
+                    {r.notes ? (
+                      <p className="mt-1 text-[11px] text-slate-500">{r.notes}</p>
+                    ) : null}
+                  </details>
                 </li>
               )
             })}

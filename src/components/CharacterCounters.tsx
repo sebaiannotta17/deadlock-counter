@@ -72,10 +72,11 @@ export function CharacterCounters({ onBack }: { onBack: () => void }) {
               de administrador para vincular ítems.
             </p>
           ) : (
-            <div className="space-y-5">
+            <div className="space-y-2">
               {list.map((row) => (
                 <ItemCard
                   key={row.id}
+                  variant="compact"
                   item={row.item}
                   priority={row.priority}
                   timing={row.timing}

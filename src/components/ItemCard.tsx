@@ -14,6 +14,8 @@ interface ItemCardProps {
     timing?: PurchaseTiming
   }>
   className?: string
+  /** Vista densa: nombre + almas; el resto va detrás de un desplegable. */
+  variant?: 'full' | 'compact'
 }
 
 export function ItemCard({
@@ -23,7 +25,119 @@ export function ItemCard({
   highlight,
   explanationBlocks,
   className = '',
+  variant = 'full',
 }: ItemCardProps) {
+  const hasCompactExtra =
+    Boolean(item.description) ||
+    Boolean(item.descriptionImage) ||
+    Boolean(explanationBlocks?.length) ||
+    Boolean(priority) ||
+    Boolean(timing)
+
+  if (variant === 'compact') {
+    return (
+      <article
+        className={`rounded-xl border bg-dl-surface p-3 text-left shadow-md ${
+          highlight
+            ? 'border-dl-accent ring-1 ring-dl-accent/35'
+            : 'border-dl-border'
+        } ${className}`}
+      >
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="truncate font-[family-name:var(--font-display)] text-sm font-semibold text-white">
+              {item.name}
+            </h3>
+            {highlight ? (
+              <span className="shrink-0 rounded-full border border-dl-accent bg-dl-accent/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-200">
+                Muy recomendado
+              </span>
+            ) : null}
+          </div>
+          <p className="text-xs text-slate-400">
+            {item.soulCost.toLocaleString()} almas
+          </p>
+        </div>
+
+        {hasCompactExtra ? (
+          <details className="group mt-2 border-t border-dl-border pt-2">
+            <summary className="cursor-pointer list-none text-xs font-medium text-dl-accent [&::-webkit-details-marker]:hidden">
+              Ver detalle
+              <span className="ml-1 text-slate-500 group-open:hidden">
+                (tipo, tier, por qué…)
+              </span>
+            </summary>
+            <div className="mt-2 space-y-2">
+              <div className="flex flex-wrap gap-1.5">
+                <span
+                  className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold ${typeBadgeClass(item.type)}`}
+                >
+                  {item.type}
+                </span>
+                <span className="rounded-md border border-slate-600/60 px-2 py-0.5 text-[10px] text-slate-300">
+                  Tier {item.tier}
+                </span>
+                {priority ? (
+                  <span
+                    className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold capitalize ${priorityBadgeClass(priority)}`}
+                  >
+                    Prioridad {priority}
+                  </span>
+                ) : null}
+                {timing ? (
+                  <span className="rounded-md border border-sky-800/50 px-2 py-0.5 text-[10px] text-sky-200">
+                    {timingLabel(timing)} game
+                  </span>
+                ) : null}
+              </div>
+              {item.description ? (
+                <p className="text-xs text-slate-400">{item.description}</p>
+              ) : null}
+              {explanationBlocks?.length ? (
+                <ul className="space-y-2">
+                  {explanationBlocks.map((b, i) => (
+                    <li key={i} className="rounded-lg bg-dl-elevated/70 px-2 py-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-dl-muted">
+                        {b.title}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-200">{b.text}</p>
+                      <div className="mt-1.5 flex flex-wrap gap-1">
+                        {b.priority ? (
+                          <span
+                            className={`rounded border px-1.5 py-0.5 text-[10px] font-medium capitalize ${priorityBadgeClass(b.priority)}`}
+                          >
+                            {b.priority}
+                          </span>
+                        ) : null}
+                        {b.timing ? (
+                          <span className="rounded border border-sky-500/30 bg-sky-950/30 px-1.5 py-0.5 text-[10px] text-sky-200">
+                            {timingLabel(b.timing)}
+                          </span>
+                        ) : null}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {item.descriptionImage ? (
+                <div className="rounded-lg border border-dl-border bg-dl-bg/40 p-2">
+                  <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                    Panel del ítem
+                  </p>
+                  <img
+                    src={item.descriptionImage}
+                    alt=""
+                    className="max-h-40 w-full rounded-md border border-dl-border object-contain"
+                  />
+                </div>
+              ) : null}
+            </div>
+          </details>
+        ) : null}
+      </article>
+    )
+  }
+
   return (
     <article
       className={`rounded-2xl border bg-dl-surface p-4 text-left shadow-lg ${
@@ -108,16 +222,16 @@ export function ItemCard({
         </div>
       </div>
       {item.descriptionImage ? (
-        <div className="mt-4 border-t border-dl-border pt-4">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Panel del ítem
-          </p>
+        <details className="mt-4 border-t border-dl-border pt-3">
+          <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Panel del ítem (imagen de descripción)
+          </summary>
           <img
             src={item.descriptionImage}
             alt=""
-            className="max-h-56 w-full rounded-xl border border-dl-border object-contain sm:max-h-72"
+            className="mt-3 max-h-56 w-full rounded-xl border border-dl-border object-contain sm:max-h-72"
           />
-        </div>
+        </details>
       ) : null}
     </article>
   )
