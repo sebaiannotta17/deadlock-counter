@@ -7,37 +7,8 @@ import type {
 const img = (label: string, bg: string, fg: string) =>
   `https://placehold.co/256x256/${bg}/${fg}?text=${encodeURIComponent(label)}`
 
-export const seedHeroes: Hero[] = [
-  {
-    id: 'hero-warden',
-    name: 'Warden',
-    image: img('Warden', '1e3a5f', '7dd3fc'),
-    description: 'Control y peel para el equipo; fuerte en línea con herramientas defensivas.',
-    role: 'Control / soporte',
-    notes: 'Ejemplo de datos semilla.',
-  },
-  {
-    id: 'hero-mina',
-    name: 'Mina',
-    image: img('Mina', '5b21b6', 'f5d0fe'),
-    description: 'Daño mágico sostenido y presión constante en línea.',
-    role: 'Caster',
-  },
-  {
-    id: 'hero-bebop',
-    name: 'Bebop',
-    image: img('Bebop', '713f12', 'fde68a'),
-    description: 'Engages explosivos y burst en corto alcance.',
-    role: 'Iniciador',
-  },
-  {
-    id: 'hero-abrams',
-    name: 'Abrams',
-    image: img('Abrams', '422006', 'fdba74'),
-    description: 'Tanque frontal que absorbe daño y desplaza peleas.',
-    role: 'Tanque',
-  },
-]
+/** Los héroes reales se cargan al iniciar desde deadlock-metadata + Assets API (ids dm-*). */
+export const seedHeroes: Hero[] = []
 
 export const seedItems: Item[] = [
   {
@@ -98,10 +69,11 @@ export const seedItems: Item[] = [
   },
 ]
 
+/** Enemigos de ejemplo enlazados a ids de juego (deadlock-metadata base.json). */
 export const seedRecommendations: CounterRecommendation[] = [
   {
     id: 'rec-1',
-    enemyHeroId: 'hero-mina',
+    enemyHeroId: 'dm-63',
     itemId: 'item-reactive',
     priority: 'alta',
     timing: 'early',
@@ -110,7 +82,7 @@ export const seedRecommendations: CounterRecommendation[] = [
   },
   {
     id: 'rec-2',
-    enemyHeroId: 'hero-mina',
+    enemyHeroId: 'dm-63',
     itemId: 'item-silence',
     priority: 'media',
     timing: 'mid',
@@ -118,7 +90,7 @@ export const seedRecommendations: CounterRecommendation[] = [
   },
   {
     id: 'rec-3',
-    enemyHeroId: 'hero-mina',
+    enemyHeroId: 'dm-63',
     itemId: 'item-extra',
     priority: 'media',
     timing: 'early',
@@ -126,7 +98,7 @@ export const seedRecommendations: CounterRecommendation[] = [
   },
   {
     id: 'rec-4',
-    enemyHeroId: 'hero-bebop',
+    enemyHeroId: 'dm-15',
     itemId: 'item-reactive',
     priority: 'alta',
     timing: 'early',
@@ -135,7 +107,7 @@ export const seedRecommendations: CounterRecommendation[] = [
   },
   {
     id: 'rec-5',
-    enemyHeroId: 'hero-bebop',
+    enemyHeroId: 'dm-15',
     itemId: 'item-debuff',
     priority: 'media',
     timing: 'mid',
@@ -144,7 +116,7 @@ export const seedRecommendations: CounterRecommendation[] = [
   },
   {
     id: 'rec-6',
-    enemyHeroId: 'hero-bebop',
+    enemyHeroId: 'dm-15',
     itemId: 'item-bullet',
     priority: 'baja',
     timing: 'late',
@@ -152,7 +124,7 @@ export const seedRecommendations: CounterRecommendation[] = [
   },
   {
     id: 'rec-7',
-    enemyHeroId: 'hero-abrams',
+    enemyHeroId: 'dm-6',
     itemId: 'item-bullet',
     priority: 'alta',
     timing: 'mid',
@@ -160,7 +132,7 @@ export const seedRecommendations: CounterRecommendation[] = [
   },
   {
     id: 'rec-8',
-    enemyHeroId: 'hero-abrams',
+    enemyHeroId: 'dm-6',
     itemId: 'item-spirit-armor',
     priority: 'media',
     timing: 'late',

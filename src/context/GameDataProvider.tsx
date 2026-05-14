@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react'
@@ -13,6 +14,7 @@ import type {
 import type { GameDataContextValue } from './gameDataTypes'
 import { GameDataContext } from './gameDataContext'
 import { loadSnapshot, resetToSeed, saveSnapshot } from '../lib/persist'
+import { buildHeroesFromDeadlockMetadata } from '../lib/deadlockMetadataImport'
 
 function newId(prefix: string): string {
   return `${prefix}-${crypto.randomUUID()}`
@@ -26,6 +28,8 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
     CounterRecommendation[]
   >(initial.recommendations)
 
+  const metadataBootstrapAttemptedRef = useRef(false)
+
   const persist = useCallback(() => {
     saveSnapshot({ heroes, items, recommendations })
   }, [heroes, items, recommendations])
@@ -35,6 +39,7 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
   }, [heroes, items, recommendations])
 
   const resetSeed = useCallback(() => {
+    metadataBootstrapAttemptedRef.current = false
     const snap = resetToSeed()
     setHeroes(snap.heroes)
     setItems(snap.items)
@@ -105,6 +110,25 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
       return [...kept, ...imported]
     })
   }, [])
+
+  /** Roster oficial vía deadlock-metadata cuando todavía no hay ningún dm-* */
+  useEffect(() => {
+    if (heroes.some((h) => h.id.startsWith('dm-'))) return
+    if (metadataBootstrapAttemptedRef.current) return
+    metadataBootstrapAttemptedRef.current = true
+
+    ;(async () => {
+      try {
+        const list = await buildHeroesFromDeadlockMetadata({
+          includeInDevelopment: false,
+        })
+        if (list.length > 0) mergeHeroes(list)
+        else metadataBootstrapAttemptedRef.current = false
+      } catch {
+        metadataBootstrapAttemptedRef.current = false
+      }
+    })()
+  }, [heroes, mergeHeroes])
 
   const value = useMemo<GameDataContextValue>(
     () => ({

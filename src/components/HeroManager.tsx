@@ -90,7 +90,15 @@ export function HeroManager() {
           Importar desde deadlock-metadata
         </h3>
         <p className="mt-2 text-sm text-slate-400">
-          Lee{' '}
+          La app también intenta cargar este roster{' '}
+          <strong className="text-slate-300">solo al iniciar</strong> si todavía
+          no tenés ningún personaje con id <code className="text-xs">dm-*</code>{' '}
+          (necesita internet). Esta acción fuerza una nueva descarga y puede
+          incluir{' '}
+          <code className="text-xs">in_devel</code> si lo marcás.
+        </p>
+        <p className="mt-2 text-sm text-slate-400">
+          Fuente lista base:{' '}
           <code className="rounded bg-dl-elevated px-1 text-xs text-purple-200">
             heroes/base.json
           </code>{' '}
@@ -112,10 +120,8 @@ export function HeroManager() {
           >
             Deadlock Assets API
           </a>
-          . Los personajes importados usan id tipo{' '}
-          <code className="text-xs text-slate-300">dm-63</code> (número de id de
-          juego). Los counters viejos siguen apuntando a tus héroes manuales
-          hasta que reasignes enemigos a estos ids.
+          Los datos de ejemplo de counters ya apuntan a ids{' '}
+          <code className="text-xs">dm-*</code> (p. ej. Mina, Bebop, Abrams).
         </p>
         <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm text-slate-300">
           <input
