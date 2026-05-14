@@ -6,6 +6,7 @@ import { AdminPanel } from './components/AdminPanel'
 import { CharacterCounters } from './components/CharacterCounters'
 import { MainMenu } from './components/MainMenu'
 import { MatchRecommender } from './components/MatchRecommender'
+import { AppBackground } from './components/AppBackground'
 
 type View = 'menu' | 'match' | 'counters' | 'admin'
 
@@ -16,7 +17,8 @@ export default function App() {
     <ProfileProvider>
       <LocaleProvider>
       <GameDataProvider>
-        <div className="min-h-svh">
+        <AppBackground />
+        <div className="relative z-10 min-h-svh">
         {view === 'menu' ? (
           <MainMenu
             onNavigate={(v) => setView(v)}

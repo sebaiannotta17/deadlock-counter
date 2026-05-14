@@ -14,15 +14,75 @@
   --color-dl-muted: #94a3b8;
 }
 
-/*
-  Arte de fondo: deadlocks promocional vía Valve Archive (mirrors públicos).
-  Origen listado en https://valvearchive.com/Games/Deadlock/Art/
-  Derechos: Valve Corporation. Solo uso decorativo de fan; para producción estable
-  conviene hospedar una copia en /public/.
-*/
+/* Carrusel suave detrás del contenido (opacidad pico sólo sobre la foto). */
 :root {
-  /* Cambiá esta URL por otra de la misma carpeta (p. ej. Map Rework Update.jpg) */
-  --dl-bg-art: url('https://valvearchive.com/Games/Deadlock/Art/header1.png');
+  --dl-bg-photo-opacity: 0.38;
+}
+
+@keyframes dl-bg-slot {
+  0% {
+    opacity: 0;
+    transform: scale(1.035);
+  }
+  10% {
+    opacity: var(--dl-bg-photo-opacity);
+    transform: scale(1.02);
+  }
+  22% {
+    opacity: var(--dl-bg-photo-opacity);
+    transform: scale(1);
+  }
+  30% {
+    opacity: 0;
+    transform: scale(1.015);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.035);
+  }
+}
+
+.dl-bg-layer {
+  opacity: 0;
+  animation-name: dl-bg-slot;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@media (max-width: 640px) {
+  @keyframes dl-bg-slot {
+    0% {
+      opacity: 0;
+    }
+    10% {
+      opacity: var(--dl-bg-photo-opacity);
+    }
+    22% {
+      opacity: var(--dl-bg-photo-opacity);
+    }
+    30% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .dl-bg-layer {
+    transform: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dl-bg-layers .dl-bg-layer {
+    animation: none !important;
+    opacity: 0 !important;
+    transform: none !important;
+  }
+
+  .dl-bg-layers .dl-bg-layer:first-child {
+    opacity: var(--dl-bg-photo-opacity) !important;
+  }
 }
 
 @layer base {
@@ -32,42 +92,5 @@
   body {
     @apply m-0 min-h-svh text-slate-200 font-[family-name:var(--font-body)];
     background-color: var(--color-dl-bg);
-    /* Capas de arriba a abajo: acento · velo oscuro · imagen · color base */
-    background-image:
-      radial-gradient(
-        ellipse 130% 90% at 50% -8%,
-        rgba(249, 115, 22, 0.11),
-        transparent 52%
-      ),
-      linear-gradient(
-        to bottom,
-        rgba(10, 11, 15, 0.91) 0%,
-        rgba(10, 11, 15, 0.86) 45%,
-        rgba(10, 11, 15, 0.94) 100%
-      ),
-      var(--dl-bg-art);
-    background-size:
-      100% 40%,
-      100% 100%,
-      cover;
-    background-position:
-      center top,
-      center,
-      center 20%;
-    background-repeat: no-repeat;
-    background-attachment: scroll;
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    body {
-      background-attachment: fixed, scroll, fixed;
-    }
-  }
-
-  /* fixed + grandes fondos pueden molestar en móvil: volvemos a scroll */
-  @media (max-width: 640px), (prefers-reduced-motion: reduce) {
-    body {
-      background-attachment: scroll !important;
-    }
   }
 }
