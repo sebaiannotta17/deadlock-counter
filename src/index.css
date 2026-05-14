@@ -1,0 +1,24 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Orbitron', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --color-dl-bg: #0a0b0f;
+  --color-dl-surface: #12141c;
+  --color-dl-elevated: #1a1d28;
+  --color-dl-border: #2a2f3d;
+  --color-dl-shot: #22d3ee;
+  --color-dl-life: #4ade80;
+  --color-dl-spirit: #c084fc;
+  --color-dl-accent: #f97316;
+  --color-dl-muted: #94a3b8;
+}
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+  body {
+    @apply m-0 min-h-svh bg-dl-bg text-slate-200 font-[family-name:var(--font-body)];
+  }
+}
