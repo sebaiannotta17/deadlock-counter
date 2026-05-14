@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { ProfileToolbar } from './ProfileToolbar'
 import { useGameData } from '../hooks/useGameData'
 import { recommendationsForEnemy } from '../utils/recommendations'
 import { HeroSelector } from './HeroSelector'
@@ -20,6 +21,7 @@ export function CharacterCounters({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 md:py-10">
+      <ProfileToolbar className="mb-4" />
       <button
         type="button"
         onClick={onBack}

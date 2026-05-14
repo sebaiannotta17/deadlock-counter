@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { ProfileToolbar } from './ProfileToolbar'
 import { useGameData } from '../hooks/useGameData'
 import { combineLaneRecommendations } from '../utils/recommendations'
 import { EnemySelector } from './EnemySelector'
@@ -35,6 +36,7 @@ export function MatchRecommender({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 md:py-10">
+      <ProfileToolbar className="mb-4" />
       <div className="mb-8 flex flex-wrap items-center gap-3">
         <button
           type="button"

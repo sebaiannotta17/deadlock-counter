@@ -1,3 +1,5 @@
+import { ProfileToolbar } from './ProfileToolbar'
+
 type View = 'menu' | 'match' | 'counters' | 'admin'
 
 interface MainMenuProps {
@@ -8,6 +10,9 @@ export function MainMenu({ onNavigate }: MainMenuProps) {
   return (
     <div className="flex min-h-svh flex-col items-center justify-center px-4 py-12">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_rgba(249,115,22,0.12),transparent_55%),radial-gradient(ellipse_at_bottom,_rgba(34,211,238,0.08),transparent_50%)]" />
+      <div className="mb-8 w-full max-w-lg">
+        <ProfileToolbar variant="menu" />
+      </div>
       <div className="w-full max-w-lg text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.35em] text-dl-accent">
           Deadlock
