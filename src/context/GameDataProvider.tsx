@@ -97,6 +97,15 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
     setRecommendations((prev) => prev.filter((r) => r.id !== id))
   }, [])
 
+  const mergeHeroes = useCallback((imported: Hero[]) => {
+    if (imported.length === 0) return
+    setHeroes((prev) => {
+      const replaceIds = new Set(imported.map((h) => h.id))
+      const kept = prev.filter((h) => !replaceIds.has(h.id))
+      return [...kept, ...imported]
+    })
+  }, [])
+
   const value = useMemo<GameDataContextValue>(
     () => ({
       heroes,
@@ -113,6 +122,7 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
       addRecommendation,
       updateRecommendation,
       deleteRecommendation,
+      mergeHeroes,
     }),
     [
       heroes,
@@ -129,6 +139,7 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
       addRecommendation,
       updateRecommendation,
       deleteRecommendation,
+      mergeHeroes,
     ],
   )
 

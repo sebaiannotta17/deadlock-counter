@@ -23,4 +23,6 @@ export interface GameDataContextValue extends GameDataSnapshot {
     patch: Partial<CounterRecommendation>,
   ): void
   deleteRecommendation(id: string): void
+  /** Reemplaza héroes con mismo `id` y mantiene el resto (útil para importaciones masivas `dm-*`). */
+  mergeHeroes(imported: Hero[]): void
 }
