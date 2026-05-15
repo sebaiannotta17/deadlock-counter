@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { ProfileToolbar } from './ProfileToolbar'
 import { useGameData } from '../hooks/useGameData'
+import { useDeadlockHeroStats } from '../hooks/useDeadlockHeroStats'
 import { combineLaneRecommendations } from '../utils/recommendations'
 import { EnemySelector } from './EnemySelector'
 import { HeroSelector } from './HeroSelector'
@@ -12,6 +13,8 @@ type Step = 'hero' | 'enemies' | 'result'
 export function MatchRecommender({ onBack }: { onBack: () => void }) {
   const { t } = useI18n()
   const { heroes, items, recommendations } = useGameData()
+  const { statsByHeroId, loading: statsLoading, error: statsError } =
+    useDeadlockHeroStats()
   const itemsById = useMemo(
     () => new Map(items.map((i) => [i.id, i])),
     [items],
@@ -94,6 +97,9 @@ export function MatchRecommender({ onBack }: { onBack: () => void }) {
             enemyOne={enemyOne}
             enemyTwo={enemyTwo}
             onSelectSlot={setEnemySlot}
+            statsByHeroId={statsByHeroId}
+            statsLoading={statsLoading}
+            statsError={statsError}
           />
           <div className="flex flex-wrap justify-between gap-3">
             <button
@@ -142,6 +148,7 @@ export function MatchRecommender({ onBack }: { onBack: () => void }) {
             player={player}
             enemies={[enemyOne, enemyTwo]}
             entries={combined}
+            statsByHeroId={statsByHeroId}
           />
         </div>
       ) : null}

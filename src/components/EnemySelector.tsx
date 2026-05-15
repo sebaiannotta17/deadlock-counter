@@ -1,5 +1,9 @@
 import type { Hero } from '../types'
+import type { AnalyticsHeroStatRow } from '../lib/deadlockAnalyticsApi'
+import { parseDmHeroNumericId } from '../lib/deadlockAnalyticsApi'
 import { HeroSelector } from './HeroSelector'
+import { HeroCard } from './HeroCard'
+import { HeroWinrateLine } from './HeroWinrateLine'
 import { useI18n } from '../hooks/useI18n'
 
 interface EnemySelectorProps {
@@ -8,6 +12,19 @@ interface EnemySelectorProps {
   enemyOne: Hero | null
   enemyTwo: Hero | null
   onSelectSlot: (slot: 0 | 1, hero: Hero | null) => void
+  statsByHeroId: Map<number, AnalyticsHeroStatRow> | null
+  statsLoading: boolean
+  statsError: string | null
+}
+
+function resolveStatsRow(
+  hero: Hero | null,
+  statsByHeroId: Map<number, AnalyticsHeroStatRow> | null,
+): AnalyticsHeroStatRow | null {
+  if (!hero || !statsByHeroId) return null
+  const n = parseDmHeroNumericId(hero.id)
+  if (n === null) return null
+  return statsByHeroId.get(n) ?? null
 }
 
 export function EnemySelector({
@@ -16,6 +33,9 @@ export function EnemySelector({
   enemyOne,
   enemyTwo,
   onSelectSlot,
+  statsByHeroId,
+  statsLoading,
+  statsError,
 }: EnemySelectorProps) {
   const { t } = useI18n()
   const exclude1 = new Set(
@@ -26,6 +46,15 @@ export function EnemySelector({
   )
 
   return (
+    <div className="space-y-6">
+      {statsError ? (
+        <p className="rounded-xl border border-amber-500/35 bg-amber-950/25 px-4 py-2 text-sm text-amber-100">
+          {t('match.stats.error')} <span className="font-mono text-amber-200/90">{statsError}</span>
+        </p>
+      ) : null}
+      {statsLoading ? (
+        <p className="text-sm text-slate-500">{t('match.stats.loading')}</p>
+      ) : null}
     <div className="grid gap-8 lg:grid-cols-2">
       <div>
         <HeroSelector
@@ -38,6 +67,17 @@ export function EnemySelector({
           }}
           excludeIds={exclude1}
         />
+        {enemyOne ? (
+          <div className="mt-4 rounded-xl border border-dl-border bg-dl-bg/40 p-3">
+            <HeroCard hero={enemyOne} compact />
+            {resolveStatsRow(enemyOne, statsByHeroId) ? (
+              <HeroWinrateLine
+                row={resolveStatsRow(enemyOne, statsByHeroId)!}
+                compact
+              />
+            ) : null}
+          </div>
+        ) : null}
         {enemyOne ? (
           <button
             type="button"
@@ -60,6 +100,17 @@ export function EnemySelector({
           excludeIds={exclude2}
         />
         {enemyTwo ? (
+          <div className="mt-4 rounded-xl border border-dl-border bg-dl-bg/40 p-3">
+            <HeroCard hero={enemyTwo} compact />
+            {resolveStatsRow(enemyTwo, statsByHeroId) ? (
+              <HeroWinrateLine
+                row={resolveStatsRow(enemyTwo, statsByHeroId)!}
+                compact
+              />
+            ) : null}
+          </div>
+        ) : null}
+        {enemyTwo ? (
           <button
             type="button"
             onClick={() => onSelectSlot(1, null)}
@@ -69,6 +120,7 @@ export function EnemySelector({
           </button>
         ) : null}
       </div>
+    </div>
     </div>
   )
 }
