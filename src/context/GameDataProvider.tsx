@@ -15,6 +15,8 @@ import type { GameDataContextValue } from './gameDataTypes'
 import { GameDataContext } from './gameDataContext'
 import { loadSnapshot, resetToSeed, saveSnapshot } from '../lib/persist'
 import { buildHeroesFromDeadlockMetadata } from '../lib/deadlockMetadataImport'
+import { buildShopItemsFromAssetsApi } from '../lib/deadlockItemsImport'
+import { mergeCounterBaseRecommendations } from '../lib/mergeCounterBase'
 
 function newId(prefix: string): string {
   return `${prefix}-${crypto.randomUUID()}`
@@ -29,6 +31,7 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
   >(initial.recommendations)
 
   const metadataBootstrapAttemptedRef = useRef(false)
+  const shopItemsBootstrapAttemptedRef = useRef(false)
 
   const persist = useCallback(() => {
     saveSnapshot({ heroes, items, recommendations })
@@ -40,6 +43,7 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
 
   const resetSeed = useCallback(() => {
     metadataBootstrapAttemptedRef.current = false
+    shopItemsBootstrapAttemptedRef.current = false
     const snap = resetToSeed()
     setHeroes(snap.heroes)
     setItems(snap.items)
@@ -139,6 +143,39 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
       }
     })()
   }, [heroes, mergeHeroes])
+
+  /** Catálogo de tienda (~dm-item-*) para enlazar el listado base por nombre. */
+  useEffect(() => {
+    const hasShopItems = items.some((it) => it.id.startsWith('dm-item-'))
+    if (hasShopItems) return
+    if (shopItemsBootstrapAttemptedRef.current) return
+    shopItemsBootstrapAttemptedRef.current = true
+    ;(async () => {
+      try {
+        const list = await buildShopItemsFromAssetsApi()
+        if (list.length > 0) mergeItems(list)
+        else shopItemsBootstrapAttemptedRef.current = false
+      } catch {
+        shopItemsBootstrapAttemptedRef.current = false
+      }
+    })()
+  }, [items, mergeItems])
+
+  /** Recomendaciones por defecto desde `counterListBase` (sin pisar filas existentes). */
+  useEffect(() => {
+    const hasShopItems = items.some((it) => it.id.startsWith('dm-item-'))
+    const hasRoster = heroes.some((h) => /^dm-\d+$/.test(h.id))
+    if (!hasShopItems || !hasRoster) return
+    setRecommendations((prev) => {
+      const next = mergeCounterBaseRecommendations(
+        heroes,
+        items,
+        prev,
+        () => newId('rec'),
+      )
+      return next.length === prev.length ? prev : next
+    })
+  }, [heroes, items])
 
   const value = useMemo<GameDataContextValue>(
     () => ({
