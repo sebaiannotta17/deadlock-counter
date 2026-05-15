@@ -1,9 +1,9 @@
 import type { Hero } from '../types'
-import type { AnalyticsHeroStatRow } from '../lib/deadlockAnalyticsApi'
+import type { EnrichedHeroStat } from '../lib/deadlockAnalyticsApi'
 import { parseDmHeroNumericId } from '../lib/deadlockAnalyticsApi'
 import { HeroSelector } from './HeroSelector'
 import { HeroCard } from './HeroCard'
-import { HeroWinrateLine } from './HeroWinrateLine'
+import { HeroLaneStats } from './HeroLaneStats'
 import { useI18n } from '../hooks/useI18n'
 
 interface EnemySelectorProps {
@@ -12,19 +12,19 @@ interface EnemySelectorProps {
   enemyOne: Hero | null
   enemyTwo: Hero | null
   onSelectSlot: (slot: 0 | 1, hero: Hero | null) => void
-  statsByHeroId: Map<number, AnalyticsHeroStatRow> | null
+  enrichedByHeroId: Map<number, EnrichedHeroStat> | null
   statsLoading: boolean
   statsError: string | null
 }
 
-function resolveStatsRow(
+function resolveEnriched(
   hero: Hero | null,
-  statsByHeroId: Map<number, AnalyticsHeroStatRow> | null,
-): AnalyticsHeroStatRow | null {
-  if (!hero || !statsByHeroId) return null
+  enrichedByHeroId: Map<number, EnrichedHeroStat> | null,
+): EnrichedHeroStat | null {
+  if (!hero || !enrichedByHeroId) return null
   const n = parseDmHeroNumericId(hero.id)
   if (n === null) return null
-  return statsByHeroId.get(n) ?? null
+  return enrichedByHeroId.get(n) ?? null
 }
 
 export function EnemySelector({
@@ -33,7 +33,7 @@ export function EnemySelector({
   enemyOne,
   enemyTwo,
   onSelectSlot,
-  statsByHeroId,
+  enrichedByHeroId,
   statsLoading,
   statsError,
 }: EnemySelectorProps) {
@@ -70,9 +70,9 @@ export function EnemySelector({
         {enemyOne ? (
           <div className="mt-4 rounded-xl border border-dl-border bg-dl-bg/40 p-3">
             <HeroCard hero={enemyOne} compact />
-            {resolveStatsRow(enemyOne, statsByHeroId) ? (
-              <HeroWinrateLine
-                row={resolveStatsRow(enemyOne, statsByHeroId)!}
+            {resolveEnriched(enemyOne, enrichedByHeroId) ? (
+              <HeroLaneStats
+                stat={resolveEnriched(enemyOne, enrichedByHeroId)!}
                 compact
               />
             ) : null}
@@ -102,9 +102,9 @@ export function EnemySelector({
         {enemyTwo ? (
           <div className="mt-4 rounded-xl border border-dl-border bg-dl-bg/40 p-3">
             <HeroCard hero={enemyTwo} compact />
-            {resolveStatsRow(enemyTwo, statsByHeroId) ? (
-              <HeroWinrateLine
-                row={resolveStatsRow(enemyTwo, statsByHeroId)!}
+            {resolveEnriched(enemyTwo, enrichedByHeroId) ? (
+              <HeroLaneStats
+                stat={resolveEnriched(enemyTwo, enrichedByHeroId)!}
                 compact
               />
             ) : null}

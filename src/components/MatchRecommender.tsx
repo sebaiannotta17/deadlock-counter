@@ -13,7 +13,7 @@ type Step = 'hero' | 'enemies' | 'result'
 export function MatchRecommender({ onBack }: { onBack: () => void }) {
   const { t } = useI18n()
   const { heroes, items, recommendations } = useGameData()
-  const { statsByHeroId, loading: statsLoading, error: statsError } =
+  const { enrichedByHeroId, loading: statsLoading, error: statsError } =
     useDeadlockHeroStats()
   const itemsById = useMemo(
     () => new Map(items.map((i) => [i.id, i])),
@@ -97,7 +97,7 @@ export function MatchRecommender({ onBack }: { onBack: () => void }) {
             enemyOne={enemyOne}
             enemyTwo={enemyTwo}
             onSelectSlot={setEnemySlot}
-            statsByHeroId={statsByHeroId}
+            enrichedByHeroId={enrichedByHeroId}
             statsLoading={statsLoading}
             statsError={statsError}
           />
@@ -148,7 +148,7 @@ export function MatchRecommender({ onBack }: { onBack: () => void }) {
             player={player}
             enemies={[enemyOne, enemyTwo]}
             entries={combined}
-            statsByHeroId={statsByHeroId}
+            enrichedByHeroId={enrichedByHeroId}
           />
         </div>
       ) : null}

@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
-import type { AnalyticsHeroStatRow } from '../lib/deadlockAnalyticsApi'
-import { fetchHeroStatsMap } from '../lib/deadlockAnalyticsApi'
+import type { EnrichedHeroStat } from '../lib/deadlockAnalyticsApi'
+import { fetchLaneAnalyticsBundle } from '../lib/deadlockAnalyticsApi'
 
 export function useDeadlockHeroStats() {
-  const [map, setMap] = useState<Map<number, AnalyticsHeroStatRow> | null>(null)
+  const [enrichedByHeroId, setEnrichedByHeroId] = useState<Map<
+    number,
+    EnrichedHeroStat
+  > | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -11,16 +14,16 @@ export function useDeadlockHeroStats() {
     let cancelled = false
     setLoading(true)
     setError(null)
-    fetchHeroStatsMap()
-      .then((m) => {
+    fetchLaneAnalyticsBundle()
+      .then((b) => {
         if (!cancelled) {
-          setMap(m)
+          setEnrichedByHeroId(b.enrichedByHeroId)
           setLoading(false)
         }
       })
       .catch((e: unknown) => {
         if (!cancelled) {
-          setMap(null)
+          setEnrichedByHeroId(null)
           setLoading(false)
           setError(e instanceof Error ? e.message : 'fetch failed')
         }
@@ -30,5 +33,5 @@ export function useDeadlockHeroStats() {
     }
   }, [])
 
-  return { statsByHeroId: map, loading, error }
+  return { enrichedByHeroId, loading, error }
 }

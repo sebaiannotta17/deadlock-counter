@@ -117,6 +117,23 @@ export function combineLaneRecommendations(
   return entries
 }
 
+export function partitionLaneRecommendations(
+  entries: CombinedEntry[],
+  enemies: [Hero, Hero],
+): { shared: CombinedEntry[]; onlyA: CombinedEntry[]; onlyB: CombinedEntry[] } {
+  const [a, b] = enemies
+  const shared = entries.filter((e) => e.veryRecommended)
+  const onlyA = entries.filter((e) => {
+    if (e.veryRecommended || e.enemyHits !== 1) return false
+    return e.sources[0]?.enemy.id === a.id
+  })
+  const onlyB = entries.filter((e) => {
+    if (e.veryRecommended || e.enemyHits !== 1) return false
+    return e.sources[0]?.enemy.id === b.id
+  })
+  return { shared, onlyA, onlyB }
+}
+
 export function recommendationsForEnemy(
   enemyId: string,
   recs: CounterRecommendation[],
